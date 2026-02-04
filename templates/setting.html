@@ -74,7 +74,11 @@
                         
                         <div class="flex items-start space-x-6 pb-6 border-b border-gray-100">
                             <div class="shrink-0">
+                                {% if user_profile.profileimg %}
                                 <img src="{{user_profile.profileimg.url}}" class="h-24 w-24 object-cover rounded-full border-4 border-gray-100 shadow-sm" alt="Current profile">
+                                {% else %}
+                                <img src="/media/blank-profile-picture.png" class="h-24 w-24 object-cover rounded-full border-4 border-gray-100 shadow-sm" alt="Default profile">
+                                {% endif %}
                             </div>
                             <div class="flex-1">
                                 <label class="nexus-label">Profile Photo</label>

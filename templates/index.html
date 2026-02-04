@@ -82,7 +82,7 @@
                     {% if user_profile.profileimg %}
                         <img src="{{ user_profile.profileimg.url }}" class="header-avatar border border-gray-300" alt="">
                     {% else %}
-                        <img src="{% static 'media/nexus_default_pfp.jpg' %}" class="header-avatar border border-gray-300" alt="Default Avatar">
+                        <img src="/media/blank-profile-picture.png" class="header-avatar border border-gray-300" alt="Default Avatar">
                     {% endif %}
                 </a>
                 <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
@@ -112,7 +112,7 @@
                                     {% if project.profile_img_url %}
                                         <img src="{{ project.profile_img_url }}" class="bg-gray-200 border border-white rounded-full w-8 h-8 object-cover">
                                     {% else %}
-                                        <img src="{% static 'media/nexus_default_pfp.jpg' %}" class="bg-gray-200 border border-white rounded-full w-8 h-8 object-cover">
+                                        <img src="/media/blank-profile-picture.png" class="bg-gray-200 border border-white rounded-full w-8 h-8 object-cover">
                                     {% endif %}
                                     </div>
                             </a>

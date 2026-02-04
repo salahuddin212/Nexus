@@ -23,7 +23,7 @@ def index(request):
 
     for project in projects:
         project.profile_img_url = profile_img_map.get(
-            project.user, "/static/images/default.jpg"
+            project.user, "/media/blank-profile-picture.png"
         )
 
     context = {

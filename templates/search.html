@@ -41,7 +41,7 @@
                     {% if user_profile.profileimg %}
                         <img src="{{ user_profile.profileimg.url }}" class="header-avatar border border-gray-300" alt="">
                     {% else %}
-                        <img src="{% static 'media/blank-profile-picture.png' %}" class="header-avatar border border-gray-300" alt="">
+                        <img src="/media/blank-profile-picture.png" class="header-avatar border border-gray-300" alt="">
                     {% endif %}
                 </a>
                 <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
@@ -82,7 +82,7 @@
                                         {% if profile.profileimg %}
                                             <img src="{{ profile.profileimg.url }}" class="rounded-full w-10 h-10 border border-gray-200 object-cover">
                                         {% else %}
-                                            <img src="{% static 'media/blank-profile-picture.png' %}" class="rounded-full w-10 h-10 border border-gray-200 object-cover">
+                                            <img src="/media/blank-profile-picture.png" class="rounded-full w-10 h-10 border border-gray-200 object-cover">
                                         {% endif %}
                                     </a>
                                     <div class="flex flex-col">
