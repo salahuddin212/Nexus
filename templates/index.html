@@ -1,0 +1,210 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'favicon.png' %}" rel="icon" type="image/png">
+    <title>Nexus | Developer Community</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'assets/css/icons.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/uikit.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/tailwind.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+
+<body class="bg-gray-100">
+
+    <header>
+        <div class="header_inner">
+            <form action="/search" method="POST">
+                {% csrf_token %}
+                <div class="left-side">
+                    <div id="logo" class=" uk-hidden@s">
+                        <a href="/">
+                            <b><h1 style="text-transform: uppercase;">Nexus</h1></b>
+                        </a>
+                    </div>
+                    <input type="text" name="username" placeholder="Search projects or devs..."> &nbsp;&nbsp;
+                    <button type="submit"><i class="fa fa-search fa-1x"></i></button>
+                </div>
+            </form>
+
+            <div class="right-side lg:pr-4">
+                <a href="#"
+                    class="bg-blue-600 flex font-bold hidden hover:bg-blue-700 hover:text-white inline-block items-center lg:block max-h-10 mr-4 px-4 py-2 rounded shadow text-white">
+                    <ion-icon name="add-circle" class="-mb-1 mr-1 opacity-90 text-xl uilus-circle"></ion-icon> 
+                    Pitch Project
+                </a>
+                
+                <div uk-dropdown="pos: top-right;mode:click ; animation: uk-animation-slide-bottom-small" class="header_dropdown">
+                    <div class="px-4 py-3 -mx-5 -mt-4 mb-5 border-b">
+                        <h4>Pitch a New Project</h4>
+                    </div>
+
+                    <div class="flex justify-center flex-center text-center">
+                        <div class="flex flex-col choose-upload text-center w-full">
+                           
+                            <form action="/upload" method="POST" enctype="multipart/form-data" class="space-y-3">
+                                {% csrf_token %}
+                                
+                                <div class="bg-gray-100 border-2 border-dashed flex flex-col h-24 items-center justify-center relative w-full rounded-lg mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-12 text-gray-400">
+                                        <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
+                                        <path d="M9 13h2v5a1 1 0 11-2 0v-5z" />
+                                    </svg>
+                                    <p class="text-xs text-gray-500">Click to Upload Banner</p>
+                                    <input type="file" name="image_upload" class="absolute inset-0 opacity-0 cursor-pointer" >
+                                </div>
+
+                                <input type="text" name="title" placeholder="Project Title" class="border border-gray-200 p-2 rounded-md w-full text-sm" required>
+                                
+                                <textarea name="description" placeholder="What is this project about?" class="border border-gray-200 p-2 rounded-md w-full text-sm" rows="3" required></textarea>
+                                
+                                <input type="text" name="tags" placeholder="Tech Stack (e.g. Python, React)" class="border border-gray-200 p-2 rounded-md w-full text-sm">
+                                
+                                <input type="url" name="github_link" placeholder="GitHub Repository URL" class="border border-gray-200 p-2 rounded-md w-full text-sm">
+
+                                <button class="bg-blue-600 text-white font-bold py-2 rounded-md w-full hover:bg-blue-700 transition" type="submit">
+                                    Launch Pitch
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="#">
+                    {% if user_profile.profileimg %}
+                        <img src="{{ user_profile.profileimg.url }}" class="header-avatar border border-gray-300" alt="">
+                    {% else %}
+                        <img src="{% static 'media/nexus_default_pfp.jpg' %}" class="header-avatar border border-gray-300" alt="Default Avatar">
+                    {% endif %}
+                </a>
+                <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
+                    <ul>
+                        <li><a href="/profile/{{user.username}}"> My Profile </a> </li>
+                        <li><a href="/settings"> Account Setting </a> </li>
+                        <li><a href="/logout"> Log Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container m-auto">
+
+        <div class="lg:flex justify-center lg:space-x-10 lg:space-y-0 space-y-5">
+
+            <div class="space-y-5 flex-shrink-0 lg:w-7/12">
+
+                {% for project in posts %}
+                <div class="bg-white shadow rounded-md -mx-2 lg:mx-0 overflow-hidden">
+
+                    <div class="flex justify-between items-center px-4 py-3">
+                        <div class="flex flex-1 items-center space-x-4">
+                            <a href="/profile/{{ project.user }}">
+                                <div class="bg-gradient-to-tr from-blue-500 to-purple-500 p-0.5 rounded-full">
+                                    {% if project.profile_img_url %}
+                                        <img src="{{ project.profile_img_url }}" class="bg-gray-200 border border-white rounded-full w-8 h-8 object-cover">
+                                    {% else %}
+                                        <img src="{% static 'media/nexus_default_pfp.jpg' %}" class="bg-gray-200 border border-white rounded-full w-8 h-8 object-cover">
+                                    {% endif %}
+                                    </div>
+                            </a>
+                            <span class="block font-semibold text-gray-700">
+                                <a href="/profile/{{ project.user }}"> @{{ project.user }} </a>
+                            </span>
+                        </div>
+                        
+                        {% if project.user == user.username %}
+                        <div>
+                            <a href="#"> <i class="icon-feather-more-horizontal text-2xl hover:bg-gray-200 rounded-full p-2 transition -mr-1 "></i> </a>
+                            <div class="bg-white w-56 shadow-md mx-auto p-2 mt-12 rounded-md text-gray-500 hidden text-base border border-gray-100" uk-drop="mode: hover;pos: top-right">
+                                <ul class="space-y-1">
+                                    <li> 
+                                        <a href="#" class="flex items-center px-3 py-2 text-red-500 hover:bg-red-100 hover:text-red-500 rounded-md ">
+                                            <i class="uil-trash-alt mr-1"></i> Delete Project
+                                        </a> 
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="px-4 pb-2">
+                        <h3 class="text-lg font-bold text-gray-900">{{ project.title|default:"Untitled Project" }}</h3>
+                        
+                        {% if project.tags %}
+                        <div class="flex flex-wrap gap-2 mt-1 mb-2">
+                            <span class="text-xs font-semibold bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100">
+                                {{ project.tags }}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if project.image %}
+                    <div uk-lightbox>
+                        <a href="{{ project.image.url }}">
+                            <img src="{{ project.image.url }}" alt="{{ project.title }}" class="w-full h-64 object-cover">
+                        </a>
+                    </div>
+                    {% endif %}
+                    <div class="py-3 px-4 space-y-3">
+                        <div class="flex space-x-4 lg:font-bold">
+                            <a href="/star-project?project_id={{ project.id }}" class="flex items-center space-x-2">
+                                <div class="p-2 rounded-full text-black hover:bg-gray-100">
+                                    {% if project.no_of_stars > 0 %}
+                                        <i class="fa fa-star text-yellow-500 text-xl"></i>
+                                    {% else %}
+                                        <i class="fa fa-star-o text-gray-500 text-xl"></i>
+                                    {% endif %}
+                                </div>
+                                <p class="text-sm">
+                                    {% if project.no_of_stars == 0 %}
+                                    No Stars
+                                    {% else %}
+                                    {{ project.no_of_stars }} Stars
+                                    {% endif %}
+                                </p>
+                            </a>
+
+                            {% if project.github_link %}
+                            <a href="{{ project.github_link }}" target="_blank" class="flex items-center space-x-2 flex-1 justify-end text-blue-600 hover:text-blue-800">
+                                <span class="text-sm font-medium">Source Code</span>
+                                <i data-feather="github" class="w-5 h-5"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        <div class="border-t pt-2">
+                            <p class="text-sm text-gray-700">
+                                <span class="font-bold text-gray-900">{{ project.user }}</span>: {{ project.description }}
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        feather.replace()
+    </script>
+    <script src="{% static 'assets/js/tippy.all.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'assets/js/uikit.js' %}"></script>
+    <script src="{% static 'assets/js/simplebar.js' %}"></script>
+    <script src="{% static 'assets/js/custom.js' %}"></script>
+    <script src="{% static '../../unpkg.com/ionicons%405.2.3/dist/ionicons.js' %}"></script>
+</body>
+</html>
