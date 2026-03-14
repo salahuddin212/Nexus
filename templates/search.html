@@ -1,180 +1,204 @@
-{% load static %}
-
+{% load static nexus_tags %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{% static 'favicon.png' %}" rel="icon" type="image/png">
-    <title>Search Results - Nexus</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <link rel="stylesheet" href="{% static 'assets/css/icons.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/uikit.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/tailwind.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="https://unpkg.com/feather-icons"></script>
+    <title>Search — Nexus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0e1117; --surface: #161b24; --surface-2: #1c2333;
+            --border: #2a3040; --text: #e8eaf0; --text-muted: #7c8494;
+            --accent: #6366f1; --radius: 10px; --transition: 0.18s ease;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+        nav { position: sticky; top: 0; z-index: 100; background: rgba(14,17,23,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); height: 60px; display: flex; align-items: center; }
+        .nav-inner { max-width: 960px; margin: 0 auto; width: 100%; padding: 0 24px; display: flex; align-items: center; gap: 16px; }
+        .nav-logo { font-size: 1.2rem; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.02em; }
+        .nav-logo span { color: var(--accent); }
+        .search-form { flex: 1; display: flex; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0 12px; gap: 8px; transition: border-color var(--transition); }
+        .search-form:focus-within { border-color: var(--accent); }
+        .search-form input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 0.875rem; font-family: inherit; padding: 9px 0; }
+        .search-form input::placeholder { color: var(--text-muted); }
+        .search-form button { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 0.8125rem; font-weight: 500; cursor: pointer; text-decoration: none; border: none; transition: all var(--transition); font-family: inherit; }
+        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+        .btn-ghost:hover { color: var(--text); border-color: var(--text-muted); }
+        .btn-primary { background: var(--accent); color: #fff; border: 1px solid transparent; }
+        .btn-primary:hover { background: #5254cc; }
+        .btn-sm { padding: 5px 12px; font-size: 0.75rem; }
+
+        .main { max-width: 960px; margin: 40px auto 80px; padding: 0 24px; }
+        .page-title { font-size: 1.125rem; font-weight: 600; margin-bottom: 6px; }
+        .page-title span { color: var(--accent); }
+        .back-link { display: inline-flex; align-items: center; gap: 5px; font-size: 0.8125rem; color: var(--text-muted); text-decoration: none; margin-bottom: 28px; transition: color var(--transition); }
+        .back-link:hover { color: var(--text); }
+        .back-link svg { width: 14px; height: 14px; }
+
+        .results-grid { display: grid; grid-template-columns: 280px 1fr; gap: 24px; }
+
+        /* Developers column */
+        .col-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .count-badge { background: var(--surface-2); border: 1px solid var(--border); border-radius: 99px; padding: 2px 8px; font-size: 0.7rem; color: var(--text-muted); }
+
+        .dev-list { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+        .dev-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); transition: background var(--transition); }
+        .dev-item:last-child { border-bottom: none; }
+        .dev-item:hover { background: var(--surface-2); }
+        .dev-left { display: flex; align-items: center; gap: 10px; }
+        .dev-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
+        .dev-name { font-size: 0.875rem; font-weight: 600; color: var(--text); text-decoration: none; display: block; }
+        .dev-name:hover { color: var(--accent); }
+        .dev-loc { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
+        .view-link { font-size: 0.75rem; color: var(--text-muted); text-decoration: none; border: 1px solid var(--border); padding: 3px 10px; border-radius: 7px; transition: all var(--transition); }
+        .view-link:hover { color: var(--text); border-color: var(--text-muted); }
+
+        /* Projects column */
+        .proj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+        .proj-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color var(--transition); display: flex; flex-direction: column; }
+        .proj-card:hover { border-color: #3a4255; }
+        .proj-card-img { width: 100%; height: 140px; object-fit: cover; display: block; }
+        .proj-card-no-img { height: 80px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; }
+        .proj-card-no-img svg { color: var(--border); }
+        .proj-body { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; }
+        .proj-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .proj-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; flex: 1; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .proj-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+        .proj-tag { font-size: 0.7rem; color: var(--accent); background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.15); padding: 2px 8px; border-radius: 99px; }
+        .proj-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border); }
+        .proj-author { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-decoration: none; }
+        .proj-author:hover { color: var(--text); }
+        .proj-github { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; text-decoration: none; }
+        .proj-github:hover { color: var(--text); }
+        .proj-github svg { width: 12px; height: 12px; }
+
+        /* Empty states */
+        .empty { text-align: center; padding: 40px 20px; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+        .empty p { font-size: 0.875rem; }
+        .no-query { text-align: center; padding: 80px 20px; }
+        .no-query h2 { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+        .no-query p { color: var(--text-muted); font-size: 0.875rem; }
+
+        @media (max-width: 768px) {
+            .results-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
+<body>
 
-<body class="bg-gray-100">
-
-    <header>
-        <div class="header_inner">
-            <form action="/search" method="POST">
-                {% csrf_token %}
-                <div class="left-side">
-                    <div id="logo" class="uk-hidden@s">
-                        <a href="/">
-                            <b><h1 style="text-transform: uppercase;">Nexus</h1></b>
-                        </a>
-                    </div>
-                    <input type="text" name="username" placeholder="Search for devs or projects..." value="{{ query }}"> &nbsp;&nbsp;
-                    <button type="submit"><i class="fa fa-search fa-1x"></i></button>
-                </div>
-            </form>
-
-            <div class="right-side lg:pr-4">
-                <a href="#">
-                    {% if user_profile.profileimg %}
-                        <img src="{{ user_profile.profileimg.url }}" class="header-avatar border border-gray-300" alt="">
-                    {% else %}
-                        <img src="/media/blank-profile-picture.png" class="header-avatar border border-gray-300" alt="">
-                    {% endif %}
-                </a>
-                <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
-                    <ul>
-                        <li><a href="/profile/{{ user_profile.user.username }}"> My Profile </a> </li>
-                        <li><a href="/settings"> Account Settings </a> </li>
-                        <li><a href="/logout"> Log Out</a></li>
-                    </ul>
-                </div>
-            </div>
+<nav>
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">Nex<span>us</span></a>
+        <form class="search-form" action="/search" method="GET">
+            <button type="submit" aria-label="Search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <input type="text" name="q" placeholder="Search projects or developers…" value="{{ query }}">
+        </form>
+        <div style="display:flex;align-items:center;gap:10px;">
+            {% if user.is_authenticated %}
+                <a href="/profile/{{ user.username }}" class="btn btn-ghost btn-sm">Profile</a>
+                <a href="/logout" class="btn btn-ghost btn-sm">Sign Out</a>
+            {% else %}
+                <a href="/signin" class="btn btn-ghost btn-sm">Sign In</a>
+                <a href="/signup" class="btn btn-primary btn-sm">Join</a>
+            {% endif %}
         </div>
-    </header>
+    </div>
+</nav>
 
-    <div class="container m-auto py-10 px-4">
-        
-        <div class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-800">Search Results for: "<span class="text-blue-600">{{ query }}</span>"</h1>
-            <a href="/" class="text-sm text-gray-500 hover:text-gray-900 flex items-center mt-2">
-                <i data-feather="arrow-left" class="w-4 h-4 mr-1"></i> Back to Feed
-            </a>
-        </div>
-
-        <div class="grid lg:grid-cols-3 gap-8">
-            
-            <div class="lg:col-span-1">
-                <div class="flex items-center justify-between mb-4 border-b pb-2 border-gray-200">
-                    <h3 class="text-lg font-bold text-gray-700">Developers</h3>
-                    <span class="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-1 rounded-full">{{ user_results|length }}</span>
-                </div>
-                
-                <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
-                    <div class="divide-y divide-gray-100">
-                        {% if user_results %}
-                            {% for profile in user_results %}
-                            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition">
-                                <div class="flex items-center space-x-3">
-                                    <a href="/profile/{{ profile.user.username }}">
-                                        {% if profile.profileimg %}
-                                            <img src="{{ profile.profileimg.url }}" class="rounded-full w-10 h-10 border border-gray-200 object-cover">
-                                        {% else %}
-                                            <img src="/media/blank-profile-picture.png" class="rounded-full w-10 h-10 border border-gray-200 object-cover">
-                                        {% endif %}
-                                    </a>
-                                    <div class="flex flex-col">
-                                        <a href="/profile/{{ profile.user.username }}" class="font-bold text-gray-800 hover:text-blue-600 text-sm">
-                                            @{{ profile.user.username }}
-                                        </a>
-                                        <span class="text-xs text-gray-500">{{ profile.location|default:"Global" }}</span>
-                                    </div>
-                                </div>
-                                <a href="/profile/{{ profile.user.username }}" class="text-xs border border-gray-300 px-3 py-1 rounded-full text-gray-600 hover:bg-gray-100 font-medium">
-                                    View
-                                </a>
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="p-6 text-center">
-                                <p class="text-sm text-gray-500">No developers found.</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-2">
-                <div class="flex items-center justify-between mb-4 border-b pb-2 border-gray-200">
-                    <h3 class="text-lg font-bold text-gray-700">Projects</h3>
-                    <span class="bg-blue-100 text-blue-600 text-xs font-bold px-2 py-1 rounded-full">{{ project_results|length }}</span>
-                </div>
-                
-                {% if project_results %}
-                    <div class="grid md:grid-cols-2 gap-6">
-                        {% for project in project_results %}
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition flex flex-col h-full">
-                            
-                            {% if project.image %}
-                                <a href="{{ project.image.url }}" target="_blank" class="block relative h-40 bg-gray-100">
-                                    <img src="{{ project.image.url }}" class="w-full h-full object-cover" alt="{{ project.title }}">
-                                </a>
+<div class="main">
+    {% if query %}
+    <h1 class="page-title">Results for <span>"{{ query }}"</span></h1>
+    <a href="/" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to feed
+    </a>
+    <div class="results-grid">
+        <!-- Developers -->
+        <div>
+            <div class="col-label">Developers <span class="count-badge">{{ user_results|length }}</span></div>
+            {% if user_results %}
+            <div class="dev-list">
+                {% for profile in user_results %}
+                <div class="dev-item">
+                    <div class="dev-left">
+                        <a href="/profile/{{ profile.user.username }}">
+                            {% if profile.profileimg %}
+                                <img src="{{ profile.profileimg.url }}" class="dev-avatar" alt="{{ profile.user.username }}">
                             {% else %}
-                                <div class="block relative h-40 bg-gray-200 flex items-center justify-center">
-                                    <i data-feather="image" class="text-gray-400 w-10 h-10"></i>
-                                </div>
+                                <img src="/media/blank-profile-picture.png" class="dev-avatar" alt="{{ profile.user.username }}">
                             {% endif %}
-                            <div class="p-4 flex-1 flex flex-col">
-                                <h4 class="text-base font-bold text-gray-900 mb-1 truncate">{{ project.title|default:"Untitled Project" }}</h4>
-                                <p class="text-xs text-gray-500 mb-3 line-clamp-2 flex-1">{{ project.description }}</p>
-                                
-                                {% if project.tags %}
-                                <div class="flex flex-wrap gap-1 mb-3">
-                                    <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-1 rounded border border-gray-200 font-semibold">
-                                        {{ project.tags }}
-                                    </span>
-                                </div>
-                                {% endif %}
-
-                                <div class="flex justify-between items-center pt-3 border-t border-gray-50 mt-auto">
-                                    <a href="/profile/{{ project.user }}" class="flex items-center text-xs font-bold text-gray-700 hover:underline">
-                                        <i data-feather="user" class="w-3 h-3 mr-1"></i> {{ project.user }}
-                                    </a>
-                                    
-                                    {% if project.github_link %}
-                                    <a href="{{ project.github_link }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-xs font-medium flex items-center">
-                                        Source <i data-feather="github" class="w-3 h-3 ml-1"></i>
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </div>
+                        </a>
+                        <div>
+                            <a href="/profile/{{ profile.user.username }}" class="dev-name">@{{ profile.user.username }}</a>
+                            <span class="dev-loc">{{ profile.location|default:"Global" }}</span>
                         </div>
-                        {% endfor %}
                     </div>
-                {% else %}
-                    <div class="bg-white rounded-lg p-12 text-center border border-dashed border-gray-300">
-                        <div class="mx-auto h-12 w-12 text-gray-300 mb-3">
-                            <i data-feather="code" style="width: 100%; height: 100%;"></i>
-                        </div>
-                        <h3 class="text-gray-900 font-medium">No projects found</h3>
-                        <p class="text-gray-500 text-sm mt-1">Try searching for different keywords or tags.</p>
-                    </div>
-                {% endif %}
+                    <a href="/profile/{{ profile.user.username }}" class="view-link">View</a>
+                </div>
+                {% endfor %}
             </div>
+            {% else %}
+            <div class="empty"><p>No developers found.</p></div>
+            {% endif %}
+        </div>
 
+        <!-- Projects -->
+        <div>
+            <div class="col-label">Projects <span class="count-badge">{{ project_results|length }}</span></div>
+            {% if project_results %}
+            <div class="proj-grid">
+                {% for project in project_results %}
+                <div class="proj-card">
+                    {% if project.image %}
+                        <img src="{{ project.image.url }}" class="proj-card-img" alt="{{ project.title }}">
+                    {% else %}
+                        <div class="proj-card-no-img">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        </div>
+                    {% endif %}
+                    <div class="proj-body">
+                        <h3 class="proj-title">{{ project.title|default:"Untitled Project" }}</h3>
+                        <p class="proj-desc">{{ project.description }}</p>
+                        {% if project.tags %}
+                        <div class="proj-tags">
+                            {% for tag in project.tags|split:"," %}
+                                <span class="proj-tag">{{ tag|strip }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="proj-footer">
+                            <a href="/profile/{{ project.user }}" class="proj-author">@{{ project.user }}</a>
+                            {% if project.github_link %}
+                            <a href="{{ project.github_link }}" target="_blank" rel="noopener" class="proj-github">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                                Source
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty"><p>No projects match your query.</p></div>
+            {% endif %}
         </div>
     </div>
 
-    <script>
-        feather.replace()
-    </script>
-    <script src="{% static 'assets/js/tippy.all.min.js' %}"></script>
-    <script src="{% static 'assets/js/jquery-3.3.1.min.js' %}"></script>
-    <script src="{% static 'assets/js/uikit.js' %}"></script>
-    <script src="{% static 'assets/js/simplebar.js' %}"></script>
-    <script src="{% static 'assets/js/custom.js' %}"></script>
-    <script src="{% static '../../unpkg.com/ionicons%405.2.3/dist/ionicons.js' %}"></script>
+    {% else %}
+    <div class="no-query">
+        <h2>Search Nexus</h2>
+        <p>Find developers and projects by name, tech stack, or keywords.</p>
+    </div>
+    {% endif %}
+</div>
+
 </body>
 </html>

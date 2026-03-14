@@ -1,210 +1,460 @@
-{% load static %}
-
+{% load static nexus_tags %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{% static 'favicon.png' %}" rel="icon" type="image/png">
-    <title>Nexus | Developer Community</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{% static 'assets/css/icons.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/uikit.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/tailwind.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Nexus — Developer Community</title>
+    <meta name="description" content="Discover projects built by developers worldwide. Nexus is the place to pitch, explore, and connect with the developer community.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0e1117;
+            --surface: #161b24;
+            --surface-2: #1c2333;
+            --border: #2a3040;
+            --text: #e8eaf0;
+            --text-muted: #7c8494;
+            --accent: #6366f1;
+            --accent-hover: #5254cc;
+            --star: #f59e0b;
+            --danger: #ef4444;
+            --radius: 10px;
+            --transition: 0.18s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Navbar ── */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(14, 17, 23, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            height: 60px;
+            display: flex;
+            align-items: center;
+        }
+        .nav-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .nav-logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+            flex-shrink: 0;
+        }
+        .nav-logo span { color: var(--accent); }
+
+        .search-form {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0 12px;
+            gap: 8px;
+            transition: border-color var(--transition);
+        }
+        .search-form:focus-within { border-color: var(--accent); }
+        .search-form input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-size: 0.875rem;
+            font-family: inherit;
+            padding: 9px 0;
+        }
+        .search-form input::placeholder { color: var(--text-muted); }
+        .search-form button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0;
+            transition: color var(--transition);
+        }
+        .search-form button:hover { color: var(--text); }
+
+        .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 0.8125rem; font-weight: 500; cursor: pointer; text-decoration: none; border: none; transition: all var(--transition); font-family: inherit; }
+        .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+        .btn-ghost:hover { color: var(--text); border-color: var(--text-muted); }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-sm { padding: 5px 12px; font-size: 0.75rem; }
+
+        .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); cursor: pointer; }
+
+        /* ── Hero (unauthenticated) ── */
+        .hero {
+            max-width: 900px;
+            margin: 56px auto 40px;
+            padding: 0 24px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        .hero h1 span { color: var(--accent); }
+        .hero p { color: var(--text-muted); margin-top: 12px; font-size: 1rem; max-width: 480px; margin-left: auto; margin-right: auto; }
+        .hero-actions { display: flex; justify-content: center; gap: 12px; margin-top: 28px; }
+
+        /* ── Feed Layout ── */
+        .feed-wrapper {
+            max-width: 640px;
+            margin: 32px auto 80px;
+            padding: 0 24px;
+        }
+        .feed-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .feed-header h2 { font-size: 0.875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+        /* ── Post Card ── */
+        .post-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 16px;
+            transition: border-color var(--transition);
+        }
+        .post-card:hover { border-color: #3a4255; }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px 12px;
+        }
+        .post-author { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .author-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
+        .author-name { font-size: 0.875rem; font-weight: 600; color: var(--text); transition: color var(--transition); }
+        .post-author:hover .author-name { color: var(--accent); }
+        .post-time { font-size: 0.75rem; color: var(--text-muted); }
+
+        .post-image { width: 100%; max-height: 420px; object-fit: cover; display: block; }
+
+        .post-body { padding: 14px 16px 16px; }
+        .post-title { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.4; }
+        .post-description { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px; }
+
+        .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+        .tag { font-size: 0.7rem; font-weight: 500; color: var(--accent); background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); padding: 3px 10px; border-radius: 99px; }
+
+        .post-actions { display: flex; align-items: center; gap: 4px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .action-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: none; border: none; cursor: pointer;
+            color: var(--text-muted); font-size: 0.8125rem; font-weight: 500;
+            font-family: inherit; padding: 6px 10px; border-radius: 7px;
+            transition: all var(--transition); text-decoration: none;
+        }
+        .action-btn:hover { color: var(--text); background: var(--surface-2); }
+        .action-btn.starred { color: var(--star); }
+        .action-btn.starred:hover { color: var(--star); background: rgba(245,158,11,0.08); }
+        .action-btn svg { width: 15px; height: 15px; }
+
+        .action-btn.github-btn { margin-left: auto; color: var(--text-muted); }
+        .action-btn.github-btn:hover { color: var(--text); }
+
+        /* ── Upload Modal (dropdown) ── */
+        .pitch-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .pitch-panel {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 360px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            z-index: 200;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .pitch-panel.open { display: block; }
+        .pitch-panel h3 { font-size: 0.9375rem; font-weight: 600; margin-bottom: 16px; }
+
+        .form-field { margin-bottom: 12px; }
+        .form-field input, .form-field textarea {
+            width: 100%;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 9px 12px;
+            font-size: 0.8125rem;
+            color: var(--text);
+            font-family: inherit;
+            outline: none;
+            transition: border-color var(--transition);
+        }
+        .form-field input:focus, .form-field textarea:focus { border-color: var(--accent); }
+        .form-field input::placeholder, .form-field textarea::placeholder { color: var(--text-muted); }
+        .form-field textarea { resize: none; }
+
+        .upload-area {
+            border: 1.5px dashed var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            transition: border-color var(--transition);
+            margin-bottom: 12px;
+        }
+        .upload-area:hover { border-color: var(--accent); }
+        .upload-area p { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
+        .upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .upload-area svg { color: var(--text-muted); }
+
+        /* ── Profile dropdown ── */
+        .profile-menu { position: relative; }
+        .profile-menu-panel {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 180px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            z-index: 200;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        .profile-menu-panel.open { display: block; }
+        .profile-menu-panel a {
+            display: block;
+            padding: 10px 14px;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all var(--transition);
+        }
+        .profile-menu-panel a:hover { background: var(--surface-2); color: var(--text); }
+        .profile-menu-panel .logout { color: var(--danger); }
+        .profile-menu-panel .logout:hover { background: rgba(239,68,68,0.08); }
+
+        /* ── Empty state ── */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-state svg { color: var(--border); margin-bottom: 12px; }
+        .empty-state h3 { font-size: 0.9375rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.6rem; }
+            .pitch-panel { width: calc(100vw - 48px); right: -24px; }
+        }
+    </style>
 </head>
+<body>
 
-<body class="bg-gray-100">
+    <!-- Navbar -->
+    <nav>
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">Nex<span>us</span></a>
 
-    <header>
-        <div class="header_inner">
-            <form action="/search" method="POST">
-                {% csrf_token %}
-                <div class="left-side">
-                    <div id="logo" class=" uk-hidden@s">
-                        <a href="/">
-                            <b><h1 style="text-transform: uppercase;">Nexus</h1></b>
-                        </a>
-                    </div>
-                    <input type="text" name="username" placeholder="Search projects or devs..."> &nbsp;&nbsp;
-                    <button type="submit"><i class="fa fa-search fa-1x"></i></button>
-                </div>
+            <form class="search-form" action="/search" method="GET">
+                <button type="submit" aria-label="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
+                <input type="text" name="q" placeholder="Search projects or developers…">
             </form>
 
-            <div class="right-side lg:pr-4">
-                <a href="#"
-                    class="bg-blue-600 flex font-bold hidden hover:bg-blue-700 hover:text-white inline-block items-center lg:block max-h-10 mr-4 px-4 py-2 rounded shadow text-white">
-                    <ion-icon name="add-circle" class="-mb-1 mr-1 opacity-90 text-xl uilus-circle"></ion-icon> 
-                    Pitch Project
-                </a>
-                
-                <div uk-dropdown="pos: top-right;mode:click ; animation: uk-animation-slide-bottom-small" class="header_dropdown">
-                    <div class="px-4 py-3 -mx-5 -mt-4 mb-5 border-b">
-                        <h4>Pitch a New Project</h4>
-                    </div>
-
-                    <div class="flex justify-center flex-center text-center">
-                        <div class="flex flex-col choose-upload text-center w-full">
-                           
-                            <form action="/upload" method="POST" enctype="multipart/form-data" class="space-y-3">
-                                {% csrf_token %}
-                                
-                                <div class="bg-gray-100 border-2 border-dashed flex flex-col h-24 items-center justify-center relative w-full rounded-lg mb-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-12 text-gray-400">
-                                        <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z" />
-                                        <path d="M9 13h2v5a1 1 0 11-2 0v-5z" />
-                                    </svg>
-                                    <p class="text-xs text-gray-500">Click to Upload Banner</p>
-                                    <input type="file" name="image_upload" class="absolute inset-0 opacity-0 cursor-pointer" >
-                                </div>
-
-                                <input type="text" name="title" placeholder="Project Title" class="border border-gray-200 p-2 rounded-md w-full text-sm" required>
-                                
-                                <textarea name="description" placeholder="What is this project about?" class="border border-gray-200 p-2 rounded-md w-full text-sm" rows="3" required></textarea>
-                                
-                                <input type="text" name="tags" placeholder="Tech Stack (e.g. Python, React)" class="border border-gray-200 p-2 rounded-md w-full text-sm">
-                                
-                                <input type="url" name="github_link" placeholder="GitHub Repository URL" class="border border-gray-200 p-2 rounded-md w-full text-sm">
-
-                                <button class="bg-blue-600 text-white font-bold py-2 rounded-md w-full hover:bg-blue-700 transition" type="submit">
-                                    Launch Pitch
-                                </button>
-                            </form>
+            <div class="nav-actions">
+                {% if user.is_authenticated %}
+                    <button class="btn btn-primary btn-sm" onclick="togglePitch(event)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Pitch
+                    </button>
+                    <div class="profile-menu">
+                        <img src="{% if user_profile and user_profile.profileimg %}{{ user_profile.profileimg.url }}{% else %}/media/blank-profile-picture.png{% endif %}"
+                             class="avatar" alt="Profile" onclick="toggleProfileMenu(event)">
+                        <div class="profile-menu-panel" id="profileMenu">
+                            <a href="/profile/{{ user.username }}">My Profile</a>
+                            <a href="/settings">Settings</a>
+                            <a href="/logout" class="logout">Sign Out</a>
                         </div>
                     </div>
-                </div>
-
-                <a href="#">
-                    {% if user_profile.profileimg %}
-                        <img src="{{ user_profile.profileimg.url }}" class="header-avatar border border-gray-300" alt="">
-                    {% else %}
-                        <img src="/media/blank-profile-picture.png" class="header-avatar border border-gray-300" alt="Default Avatar">
-                    {% endif %}
-                </a>
-                <div uk-drop="mode: click;offset:9" class="header_dropdown profile_dropdown border-t">
-                    <ul>
-                        <li><a href="/profile/{{user.username}}"> My Profile </a> </li>
-                        <li><a href="/settings"> Account Setting </a> </li>
-                        <li><a href="/logout"> Log Out</a></li>
-                    </ul>
-                </div>
+                {% else %}
+                    <a href="/signin" class="btn btn-ghost btn-sm">Sign In</a>
+                    <a href="/signup" class="btn btn-primary btn-sm">Join</a>
+                {% endif %}
             </div>
         </div>
-    </header>
+    </nav>
 
-    <div class="container m-auto">
+    <!-- Pitch dropdown panel (auth only) -->
+    {% if user.is_authenticated %}
+    <div style="position:fixed;top:60px;right:24px;z-index:150;">
+        <div class="pitch-panel" id="pitchPanel">
+            <h3>Pitch a Project</h3>
+            <form action="/upload" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="upload-area">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                    <p>Click to upload banner image</p>
+                    <input type="file" name="image_upload" accept="image/*">
+                </div>
+                <div class="form-field">
+                    <input type="text" name="title" placeholder="Project title" required>
+                </div>
+                <div class="form-field">
+                    <textarea name="description" placeholder="What did you build and why?" rows="3" required></textarea>
+                </div>
+                <div class="form-field">
+                    <input type="text" name="tags" placeholder="Tags: Python, React, AWS…">
+                </div>
+                <div class="form-field">
+                    <input type="url" name="github_link" placeholder="GitHub URL (optional)">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Launch →</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
 
-        <div class="lg:flex justify-center lg:space-x-10 lg:space-y-0 space-y-5">
+    <!-- Hero (unauthenticated) -->
+    {% if not user.is_authenticated %}
+    <div class="hero">
+        <h1>Discover what<br>developers are <span>building</span></h1>
+        <p>Explore projects from developers worldwide. Star what inspires you, connect with builders, and pitch your own work.</p>
+        <div class="hero-actions">
+            <a href="/signup" class="btn btn-primary">Get Started — it's free</a>
+            <a href="/signin" class="btn btn-ghost">Sign In</a>
+        </div>
+    </div>
+    {% endif %}
 
-            <div class="space-y-5 flex-shrink-0 lg:w-7/12">
+    <!-- Feed -->
+    <div class="feed-wrapper">
+        {% if user.is_authenticated %}
+        <div class="feed-header">
+            <h2>Latest Projects</h2>
+        </div>
+        {% endif %}
 
-                {% for project in posts %}
-                <div class="bg-white shadow rounded-md -mx-2 lg:mx-0 overflow-hidden">
+        {% if posts %}
+            {% for project in posts %}
+            <div class="post-card">
+                <div class="post-meta">
+                    <a href="/profile/{{ project.user }}" class="post-author">
+                        <img src="{{ project.profile_img_url }}" class="author-avatar" alt="{{ project.user }}">
+                        <span class="author-name">@{{ project.user }}</span>
+                    </a>
+                    <span class="post-time">{{ project.created_at|timesince }} ago</span>
+                </div>
 
-                    <div class="flex justify-between items-center px-4 py-3">
-                        <div class="flex flex-1 items-center space-x-4">
-                            <a href="/profile/{{ project.user }}">
-                                <div class="bg-gradient-to-tr from-blue-500 to-purple-500 p-0.5 rounded-full">
-                                    {% if project.profile_img_url %}
-                                        <img src="{{ project.profile_img_url }}" class="bg-gray-200 border border-white rounded-full w-8 h-8 object-cover">
-                                    {% else %}
-                                        <img src="/media/blank-profile-picture.png" class="bg-gray-200 border border-white rounded-full w-8 h-8 object-cover">
-                                    {% endif %}
-                                    </div>
+                {% if project.image %}
+                <img src="{{ project.image.url }}" class="post-image" alt="{{ project.title }}">
+                {% endif %}
+
+                <div class="post-body">
+                    <h2 class="post-title">{{ project.title|default:"Untitled Project" }}</h2>
+
+                    {% if project.tags %}
+                    <div class="tags">
+                        {% for tag in project.tags|split:"," %}
+                            <span class="tag">{{ tag|strip }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <p class="post-description">{{ project.description }}</p>
+
+                    <div class="post-actions">
+                        {% if user.is_authenticated %}
+                            <a href="/star-project?project_id={{ project.id }}"
+                               class="action-btn {% if project.is_starred %}starred{% endif %}">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                     fill="{% if project.is_starred %}currentColor{% else %}none{% endif %}"
+                                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                                {{ project.no_of_stars }} Star{% if project.no_of_stars != 1 %}s{% endif %}
                             </a>
-                            <span class="block font-semibold text-gray-700">
-                                <a href="/profile/{{ project.user }}"> @{{ project.user }} </a>
-                            </span>
-                        </div>
-                        
-                        {% if project.user == user.username %}
-                        <div>
-                            <a href="#"> <i class="icon-feather-more-horizontal text-2xl hover:bg-gray-200 rounded-full p-2 transition -mr-1 "></i> </a>
-                            <div class="bg-white w-56 shadow-md mx-auto p-2 mt-12 rounded-md text-gray-500 hidden text-base border border-gray-100" uk-drop="mode: hover;pos: top-right">
-                                <ul class="space-y-1">
-                                    <li> 
-                                        <a href="#" class="flex items-center px-3 py-2 text-red-500 hover:bg-red-100 hover:text-red-500 rounded-md ">
-                                            <i class="uil-trash-alt mr-1"></i> Delete Project
-                                        </a> 
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+                        {% else %}
+                            <a href="/signin" class="action-btn" title="Sign in to star">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                                {{ project.no_of_stars }} Star{% if project.no_of_stars != 1 %}s{% endif %}
+                            </a>
                         {% endif %}
-                    </div>
 
-                    <div class="px-4 pb-2">
-                        <h3 class="text-lg font-bold text-gray-900">{{ project.title|default:"Untitled Project" }}</h3>
-                        
-                        {% if project.tags %}
-                        <div class="flex flex-wrap gap-2 mt-1 mb-2">
-                            <span class="text-xs font-semibold bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100">
-                                {{ project.tags }}
-                            </span>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    {% if project.image %}
-                    <div uk-lightbox>
-                        <a href="{{ project.image.url }}">
-                            <img src="{{ project.image.url }}" alt="{{ project.title }}" class="w-full h-64 object-cover">
+                        {% if project.github_link %}
+                        <a href="{{ project.github_link }}" target="_blank" rel="noopener" class="action-btn github-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                            Source
                         </a>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                    <div class="py-3 px-4 space-y-3">
-                        <div class="flex space-x-4 lg:font-bold">
-                            <a href="/star-project?project_id={{ project.id }}" class="flex items-center space-x-2">
-                                <div class="p-2 rounded-full text-black hover:bg-gray-100">
-                                    {% if project.no_of_stars > 0 %}
-                                        <i class="fa fa-star text-yellow-500 text-xl"></i>
-                                    {% else %}
-                                        <i class="fa fa-star-o text-gray-500 text-xl"></i>
-                                    {% endif %}
-                                </div>
-                                <p class="text-sm">
-                                    {% if project.no_of_stars == 0 %}
-                                    No Stars
-                                    {% else %}
-                                    {{ project.no_of_stars }} Stars
-                                    {% endif %}
-                                </p>
-                            </a>
-
-                            {% if project.github_link %}
-                            <a href="{{ project.github_link }}" target="_blank" class="flex items-center space-x-2 flex-1 justify-end text-blue-600 hover:text-blue-800">
-                                <span class="text-sm font-medium">Source Code</span>
-                                <i data-feather="github" class="w-5 h-5"></i>
-                            </a>
-                            {% endif %}
-                        </div>
-
-                        <div class="border-t pt-2">
-                            <p class="text-sm text-gray-700">
-                                <span class="font-bold text-gray-900">{{ project.user }}</span>: {{ project.description }}
-                            </p>
-                        </div>
-                    </div>
-
                 </div>
-                {% endfor %}
             </div>
-
-        </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <h3>No projects yet</h3>
+                <p style="margin-top:4px;font-size:0.875rem;">Be the first to pitch your project.</p>
+            </div>
+        {% endif %}
     </div>
 
     <script>
-        feather.replace()
+        function togglePitch(e) {
+            e.stopPropagation();
+            document.getElementById('pitchPanel').classList.toggle('open');
+            document.getElementById('profileMenu')?.classList.remove('open');
+        }
+        function toggleProfileMenu(e) {
+            e.stopPropagation();
+            document.getElementById('profileMenu').classList.toggle('open');
+            document.getElementById('pitchPanel')?.classList.remove('open');
+        }
+        document.addEventListener('click', () => {
+            document.getElementById('pitchPanel')?.classList.remove('open');
+            document.getElementById('profileMenu')?.classList.remove('open');
+        });
     </script>
-    <script src="{% static 'assets/js/tippy.all.min.js' %}"></script>
-    <script src="{% static 'assets/js/jquery-3.3.1.min.js' %}"></script>
-    <script src="{% static 'assets/js/uikit.js' %}"></script>
-    <script src="{% static 'assets/js/simplebar.js' %}"></script>
-    <script src="{% static 'assets/js/custom.js' %}"></script>
-    <script src="{% static '../../unpkg.com/ionicons%405.2.3/dist/ionicons.js' %}"></script>
 </body>
 </html>

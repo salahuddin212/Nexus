@@ -4,7 +4,7 @@
 
 > **Nexus is not just another social network. It's a purpose-built matchmaking engine for student developers and open-source contributors.**
 
-Most student projects fail because backend developers can't find designers, and frontend devs can't find API engineers. I built **Nexus** to solve "The Lonely Repository" problem. It transforms the generic "social feed" into a **Project Marketplace**, prioritizing code, skills, and collaboration over likes and selfies.
+Many student projects face challenges due to difficulties in team formation, such as backend developers struggling to find designers or frontend engineers lacking API specialists. **Nexus** was developed to address this "Lonely Repository" problem. It transforms the generic "social feed" into a **Project Marketplace**, prioritizing code, skills, and collaboration over likes and selfies.
 
 ---
 
@@ -19,7 +19,7 @@ Most student projects fail because backend developers can't find designers, and 
 
 ## ⚡ Why Nexus? (The Logic)
 
-I originally started this as a basic social media clone, but I realized the world doesn't need another Instagram. It needs a place where:
+Initially conceived as a social media prototype, the vision for Nexus evolved. It became clear that the developer community needed a platform focused on:
 1.  **Skills are Currency:** Users connect based on `Python`, `React`, or `DevOps` tags—not random popularity.
 2.  **Projects come First:** The main feed isn't lifestyle photos; it's **Project Pitches** complete with descriptions, tech stacks, and source code links.
 3.  **Discovery is Intelligent:** A custom search engine that queries **Users** and **Project Metadata** simultaneously using `Q` lookups.
@@ -34,7 +34,6 @@ I engineered Nexus using a robust monolithic architecture designed for scalabili
 * ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat&logo=mysql&logoColor=white) **Relational Database**
 
 **Frontend & UI:**
-* ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC?style=flat&logo=tailwind-css&logoColor=white) **Utility-First Styling**
 * ![HTML5](https://img.shields.io/badge/HTML5-Semantics-E34F26?style=flat&logo=html5&logoColor=white) **Layout Architecture**
 * **Feather Icons** for lightweight, vector-based UI elements.
 
@@ -62,12 +61,6 @@ Unlike standard social apps that only search usernames, Nexus searches **Intent*
 
 ---
 
-My bad on the formatting—it looks like the code blocks got a bit tangled. Here is the fixed, clean version of that specific section.
-
-I’ve also simplified the "Clone" part to look more natural and ensured the roadmap checkboxes are properly formatted for your GitHub display.
-
----
-
 ### 💻 Getting Started (Run it Locally)
 
 Want to contribute or test the matchmaking logic? Here is the quick-start guide:
@@ -91,9 +84,10 @@ pip install -r requirements.txt
 
 **3. Configure Database**
 
-* Ensure you have **MySQL** installed and running on your machine.
-* Create a fresh database: `CREATE DATABASE nexus_db;`
-* Open `Nexus/settings.py` and update the `DATABASES` dictionary with your local MySQL username and password.
+*   Ensure you have **MySQL** installed and running on your machine.
+*   Create a fresh database: `CREATE DATABASE nexus_db;`
+*   Copy the example environment file: `cp .env.example .env`
+*   Open `.env` and update the `DATABASE_NAME`, `DATABASE_USER`, and `DATABASE_PASSWORD` variables with your local MySQL credentials.
 
 **4. Migrate & Launch**
 
@@ -111,14 +105,13 @@ Visit **[http://127.0.0.1:8000](http://127.0.0.1:8000)** and start pitching!
 ### 🔮 Future Roadmap
 
 I am actively working on evolving Nexus into an AI-first talent engine:
-* [ ] **Better UI/UX:** I'm gonna rewrite the front-end in React to have better UI/UX
+* [ ] **Better UI/UX:** The front-end will be rewritten in React to enhance the user interface and experience.
 * [ ] **Semantic Search:** Integrating Vector Embeddings (SentenceTransformers) to match project intent rather than just keywords.
 * [ ] **Automated Matching:** A push notification system that alerts developers when a project fits their defined tech stack.
-* [ ] **Cloud Deployment:** Moving from local dev to a production VPS environment using Nginx, Gunicorn, and Docker.
+* [ ] **Cloud Deployment:** Moving from local development to a production VPS environment using Nginx, Gunicorn, and Docker.
 
 ---
 
 ### 👤 Author
 
 **Selahaddin Bayassi** – *AI & Data Engineer in the making.*
-

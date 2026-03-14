@@ -8,12 +8,13 @@ from itertools import chain
 from django.db.models import Q
 
 
-@login_required(login_url="signin")
 def index(request):
-    try:
-        user_profile = Profile.objects.get(user=request.user)
-    except Profile.DoesNotExist:
-        return redirect("settings")
+    user_profile = None
+    if request.user.is_authenticated:
+        try:
+            user_profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return redirect("settings")
 
     projects = Project.objects.all().order_by("-created_at")
 
@@ -21,10 +22,18 @@ def index(request):
     profiles = Profile.objects.filter(user__username__in=project_usernames)
     profile_img_map = {p.user.username: p.profileimg.url for p in profiles}
 
+    # Determine which projects the current user has starred
+    starred_ids = set()
+    if request.user.is_authenticated:
+        starred_ids = set(
+            StarProject.objects.filter(username=request.user.username).values_list("project_id", flat=True)
+        )
+
     for project in projects:
         project.profile_img_url = profile_img_map.get(
             project.user, "/media/blank-profile-picture.png"
         )
+        project.is_starred = str(project.id) in starred_ids
 
     context = {
         "user_profile": user_profile,
@@ -33,30 +42,37 @@ def index(request):
     return render(request, "index.html", context)
 
 
-@login_required(login_url="signin")
 def search(request):
+    user_profile = None
+    if request.user.is_authenticated:
+        try:
+            user_profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            pass
 
-    if hasattr(request.user, "profile"):
-        user_profile = request.user.profile
-    else:
-        user_profile = Profile.objects.get(user=request.user)
-
+    # Support both GET and POST for public search
+    query = ""
     if request.method == "POST":
-        query = request.POST.get("username")
+        query = request.POST.get("username", "")
+    else:
+        query = request.GET.get("q", "")
+
+    if query:
         user_results = Profile.objects.filter(user__username__icontains=query)
         project_results = Project.objects.filter(
             Q(title__icontains=query) | Q(tags__icontains=query)
         )
+    else:
+        user_results = []
+        project_results = []
 
-        context = {
-            "user_profile": user_profile,
-            "query": query,
-            "user_results": user_results,
-            "project_results": project_results,
-        }
-        return render(request, "search.html", context)
-
-    return redirect("/")
+    context = {
+        "user_profile": user_profile,
+        "query": query,
+        "user_results": user_results,
+        "project_results": project_results,
+    }
+    return render(request, "search.html", context)
 
 
 @login_required(login_url="signin")
@@ -66,8 +82,8 @@ def settings(request):
     if request.method == "POST":
         user_profile.bio = request.POST["bio"]
         user_profile.location = request.POST["location"]
-        user_profile.skills = request.POST["skills"]  # nexus fields
-        user_profile.github_url = request.POST["github_url"]  # nexus fields
+        user_profile.skills = request.POST["skills"]
+        user_profile.github_url = request.POST["github_url"]
 
         if "image" in request.FILES:
             user_profile.profileimg = request.FILES["image"]
@@ -100,12 +116,10 @@ def signup(request):
                     password=password,
                 )
                 user.save()
-                # log user in and redirect to settings page.
 
                 user_login = auth.authenticate(username=username, password=password)
                 auth.login(request, user_login)
 
-                # create profile object for new user
                 user_model = User.objects.get(username=username)
                 new_profile = Profile.objects.create(
                     user=user_model, id_user=user_model.id
@@ -127,7 +141,8 @@ def signin(request):
         user = auth.authenticate(username=username, password=password)
         if user is not None:
             auth.login(request, user)
-            return redirect("/")
+            next_url = request.POST.get("next", request.GET.get("next", "/"))
+            return redirect(next_url)
         else:
             messages.info(request, "Invalid credentials")
             return redirect("signin")
@@ -141,22 +156,19 @@ def logout(request):
     return redirect("signin")
 
 
-@login_required(login_url="signin")
 def profile(request, pk):
     user_object = get_object_or_404(User, username=pk)
     user_profile = Profile.objects.get(user=user_object)
     user_projects = Project.objects.filter(user=pk).order_by("-created_at")
 
-    network_count = ConnectionsCount.objects.filter(
-        connection=pk
-    ).count()  # how many users have connected to this user (followers)
-    connections_count = ConnectionsCount.objects.filter(
-        username=pk
-    ).count()  # how many users is this user connected to (following)
+    network_count = ConnectionsCount.objects.filter(connection=pk).count()
+    connections_count = ConnectionsCount.objects.filter(username=pk).count()
 
-    is_connected = ConnectionsCount.objects.filter(
-        username=request.user.username, connection=pk
-    ).exists()
+    is_connected = False
+    if request.user.is_authenticated:
+        is_connected = ConnectionsCount.objects.filter(
+            username=request.user.username, connection=pk
+        ).exists()
 
     skills_list = []
     if user_profile.skills:
@@ -168,8 +180,8 @@ def profile(request, pk):
         "user_projects": user_projects,
         "projects_count": user_projects.count(),
         "is_connected": is_connected,
-        "network_count": network_count,  # Network: People following them
-        "connections_count": connections_count,  # People they follow
+        "network_count": network_count,
+        "connections_count": connections_count,
         "skills_list": skills_list,
         "github_url": user_profile.github_url,
     }
@@ -217,19 +229,19 @@ def star_project(request):
         new_star.save()
         project.no_of_stars += 1
         project.save()
-        return redirect("/")
     else:
         star_filter.delete()
         project.no_of_stars -= 1
         project.save()
-        return redirect("/")
+
+    return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
 @login_required(login_url="signin")
 def connect(request):
     if request.method == "POST":
-        username = request.user.username  # The user requesting the connection
-        connection = request.POST.get("user")  # The user being connected to
+        username = request.user.username
+        connection = request.POST.get("user")
 
         if not connection:
             return redirect(request.META.get("HTTP_REFERER", "/"))
